@@ -49,4 +49,6 @@ jobs:
         run: npm run build
 
       - name: Test
-        run: npm test
+        timeout-minutes: 2
+        run: node test/test.js
+        shell: bash
