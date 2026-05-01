@@ -398,7 +398,9 @@ Napi::Object init_all(Napi::Env env, Napi::Object exports) {
     RouterWrapper::init(env, exports);
     exports.Set("_shutdown", Napi::Function::New(env, [](const Napi::CallbackInfo &info) {
         auto &ctx = zmqae::detail::get_default_context();
-        zmq_ctx_shutdown(static_cast<void *>(ctx));
+        void *raw = static_cast<void *>(ctx);
+        zmq_ctx_shutdown(raw);
+        zmq_ctx_term(raw);
         return info.Env().Undefined();
     }));
     return exports;

@@ -124,12 +124,9 @@ async function main() {
     await new Promise(r => setTimeout(r, 200));
 
     console.log(`\n=== Results: ${passed} passed, ${failed} failed ===`);
-    if (failed > 0) {
-        process.exitCode = 1;
-    }
-    // On Windows, zmq_ctx_term in the static ZMQ context destructor blocks.
-    // Use SIGKILL (mapped to TerminateProcess on Windows) to skip cleanup.
-    process.kill(process.pid, 'SIGKILL');
+    process.exitCode = failed > 0 ? 1 : 0;
+    try { require('..')._shutdown(); } catch {}
+    process.exit(failed > 0 ? 1 : 0);
 }
 
 main().catch((err) => {
