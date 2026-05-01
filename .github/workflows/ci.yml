@@ -21,9 +21,10 @@ jobs:
           submodules: false
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Init submodules
+      - name: Configure git and init submodules
         run: |
-          git config --global url."https://github.com/".insteadOf "git@github.com:"
+          git config --global url."https://${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
+          git config --global url."https://${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "git@github.com:"
           git submodule update --init --recursive
 
       - uses: actions/setup-node@v4
