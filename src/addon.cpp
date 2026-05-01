@@ -81,7 +81,11 @@ public:
     }
 
     ~ClientWrapper() {
-        stop_poll_timer();
+        if (!closed_.load()) {
+            closed_.store(true);
+            uv_timer_stop(&timer_);
+            uv_close(reinterpret_cast<uv_handle_t *>(&timer_), nullptr);
+        }
         if (client_) {
             zmqae_client_destroy(client_);
             client_ = nullptr;
@@ -178,7 +182,8 @@ public:
         if (closed_.exchange(true)) {
             return info.Env().Undefined();
         }
-        stop_poll_timer();
+        uv_timer_stop(&timer_);
+        uv_close(reinterpret_cast<uv_handle_t *>(&timer_), nullptr);
         if (client_) {
             zmqae_client_close(client_);
         }
@@ -192,14 +197,9 @@ private:
         uv_timer_start(&timer_, on_uv_timer, 0, 1);
     }
 
-    void stop_poll_timer() {
-        uv_timer_stop(&timer_);
-    }
-
     static void on_uv_timer(uv_timer_t *handle) {
         auto *self = static_cast<ClientWrapper *>(handle->data);
         if (self->closed_.load()) {
-            uv_timer_stop(handle);
             return;
         }
         zmqae_client_poll(self->client_);
@@ -296,7 +296,11 @@ public:
     }
 
     ~RouterWrapper() {
-        stop_poll_timer();
+        if (!closed_.load()) {
+            closed_.store(true);
+            uv_timer_stop(&timer_);
+            uv_close(reinterpret_cast<uv_handle_t *>(&timer_), nullptr);
+        }
         if (router_) {
             zmqae_router_destroy(router_);
             router_ = nullptr;
@@ -355,7 +359,8 @@ public:
         if (closed_.exchange(true)) {
             return info.Env().Undefined();
         }
-        stop_poll_timer();
+        uv_timer_stop(&timer_);
+        uv_close(reinterpret_cast<uv_handle_t *>(&timer_), nullptr);
         if (router_) {
             zmqae_router_close(router_);
         }
@@ -369,14 +374,9 @@ private:
         uv_timer_start(&timer_, on_uv_timer, 0, 1);
     }
 
-    void stop_poll_timer() {
-        uv_timer_stop(&timer_);
-    }
-
     static void on_uv_timer(uv_timer_t *handle) {
         auto *self = static_cast<RouterWrapper *>(handle->data);
         if (self->closed_.load()) {
-            uv_timer_stop(handle);
             return;
         }
         zmqae_router_poll(self->router_);
