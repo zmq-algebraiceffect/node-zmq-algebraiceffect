@@ -10,6 +10,8 @@ export class Router {
     constructor(endpoint: string);
     on(effect: string, handler: (ctx: HandlerContext) => void): void;
     off(effect: string): void;
+    setParent(endpoint: string): void;
+    setNestedEndpoint(endpoint: string): void;
     close(): void;
 }
 
@@ -24,5 +26,6 @@ export interface HandlerContext {
     effect: string;
     payload: any;
     resume(value?: any): void;
+    resumePartial(value: any): void;
     error(message: string): void;
 }

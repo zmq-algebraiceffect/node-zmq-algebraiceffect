@@ -253,6 +253,23 @@ void router_handler_fn(void *user_data, zmqae_perform_ctx_t *ctx) {
         }));
 
     ctx_obj.DefineProperty(Napi::PropertyDescriptor::Function(
+        "resumePartial", [ctx](const Napi::CallbackInfo &info) -> Napi::Value {
+            Napi::Env env = info.Env();
+            std::string json_value = "{}";
+            if (info.Length() > 0 && !info[0].IsUndefined() && !info[0].IsNull()) {
+                if (info[0].IsObject()) {
+                    json_value = env.Global().Get("JSON").As<Napi::Object>()
+                        .Get("stringify").As<Napi::Function>()
+                        .Call({info[0]}).As<Napi::String>().Utf8Value();
+                } else if (info[0].IsString()) {
+                    json_value = info[0].As<Napi::String>().Utf8Value();
+                }
+            }
+            zmqae_ctx_resume_streaming(ctx, json_value.c_str(), 0);
+            return env.Undefined();
+        }));
+
+    ctx_obj.DefineProperty(Napi::PropertyDescriptor::Function(
         "error", [ctx](const Napi::CallbackInfo &info) -> Napi::Value {
             std::string error_msg = "unknown error";
             if (info.Length() > 0 && info[0].IsString()) {
@@ -276,6 +293,8 @@ public:
         Napi::Function func = DefineClass(env, "Router", {
             InstanceMethod("on", &RouterWrapper::on),
             InstanceMethod("off", &RouterWrapper::off),
+            InstanceMethod("setParent", &RouterWrapper::setParent),
+            InstanceMethod("setNestedEndpoint", &RouterWrapper::setNestedEndpoint),
             InstanceMethod("close", &RouterWrapper::close),
         });
         exports.Set("Router", func);
@@ -354,6 +373,34 @@ public:
             handler_refs_.erase(effect);
         }
 
+        return env.Undefined();
+    }
+
+    Napi::Value setParent(const Napi::CallbackInfo &info) {
+        Napi::Env env = info.Env();
+        if (info.Length() < 1 || !info[0].IsString()) {
+            Napi::TypeError::New(env, "setParent requires (endpoint)").ThrowAsJavaScriptException();
+            return env.Undefined();
+        }
+        std::string endpoint = info[0].As<Napi::String>().Utf8Value();
+        int rc = zmqae_router_set_parent(router_, endpoint.c_str());
+        if (rc != ZMQAE_OK) {
+            Napi::Error::New(env, zmqae_last_error()).ThrowAsJavaScriptException();
+        }
+        return env.Undefined();
+    }
+
+    Napi::Value setNestedEndpoint(const Napi::CallbackInfo &info) {
+        Napi::Env env = info.Env();
+        if (info.Length() < 1 || !info[0].IsString()) {
+            Napi::TypeError::New(env, "setNestedEndpoint requires (endpoint)").ThrowAsJavaScriptException();
+            return env.Undefined();
+        }
+        std::string endpoint = info[0].As<Napi::String>().Utf8Value();
+        int rc = zmqae_router_set_nested_endpoint(router_, endpoint.c_str());
+        if (rc != ZMQAE_OK) {
+            Napi::Error::New(env, zmqae_last_error()).ThrowAsJavaScriptException();
+        }
         return env.Undefined();
     }
 
