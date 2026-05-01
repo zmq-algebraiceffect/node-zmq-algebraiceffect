@@ -1,5 +1,7 @@
 #include <napi.h>
 #include <uv.h>
+#include <zmq.h>
+#include <zmqae/detail/context.hpp>
 
 #include <atomic>
 #include <cstdio>
@@ -394,6 +396,11 @@ private:
 Napi::Object init_all(Napi::Env env, Napi::Object exports) {
     ClientWrapper::init(env, exports);
     RouterWrapper::init(env, exports);
+    exports.Set("_shutdown", Napi::Function::New(env, [](const Napi::CallbackInfo &info) {
+        auto &ctx = zmqae::detail::get_default_context();
+        zmq_ctx_shutdown(static_cast<void *>(ctx));
+        return info.Env().Undefined();
+    }));
     return exports;
 }
 

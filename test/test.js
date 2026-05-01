@@ -125,9 +125,12 @@ async function main() {
 
     console.log(`\n=== Results: ${passed} passed, ${failed} failed ===`);
     if (failed > 0) {
-        process.exit(1);
+        process.exitCode = 1;
     }
-    process.exit(0);
+    // On Windows, the static ZMQ context destructor blocks indefinitely.
+    // Terminate it before exit so the process can clean up.
+    try { require('..')._shutdown(); } catch {}
+    process.exit(failed > 0 ? 1 : 0);
 }
 
 main().catch((err) => {

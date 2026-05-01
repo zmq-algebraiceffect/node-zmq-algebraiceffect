@@ -5,4 +5,5 @@ const addon = require(path.join(__dirname, 'build', 'Release', 'zmq-algebraiceff
 module.exports = {
     Client: addon.Client,
     Router: addon.Router,
+    _shutdown: addon._shutdown,
 };
