@@ -18,12 +18,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          submodules: recursive
+          submodules: false
 
-      - name: Convert submodule URLs to HTTPS
+      - name: Init submodules (HTTPS)
         run: |
           git config --global url."https://github.com/".insteadOf "git@github.com:"
-          git submodule sync --recursive
           git submodule update --init --recursive
 
       - uses: actions/setup-node@v4
