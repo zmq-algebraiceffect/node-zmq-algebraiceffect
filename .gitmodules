@@ -1,0 +1,3 @@
+[submodule "deps/zmq-algebraiceffect"]
+	path = deps/zmq-algebraiceffect
+	url = git@github.com:zmq-algebraiceffect/zmq-algebraiceffect.git

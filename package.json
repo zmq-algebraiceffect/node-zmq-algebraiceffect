@@ -1,0 +1,21 @@
+{
+  "name": "zmq-algebraiceffect",
+  "version": "0.1.0",
+  "description": "Node.js native addon for zmq-algebraiceffect protocol",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "scripts": {
+    "install": "cmake-js build",
+    "build": "cmake-js build",
+    "rebuild": "cmake-js rebuild",
+    "test": "node test/test.js"
+  },
+  "keywords": ["zmq", "algebraic-effects", "native", "addon"],
+  "license": "MIT",
+  "dependencies": {
+    "node-addon-api": "^8.0.0"
+  },
+  "devDependencies": {
+    "cmake-js": "^7.3.0"
+  }
+}
