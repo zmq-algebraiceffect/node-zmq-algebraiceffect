@@ -127,10 +127,9 @@ async function main() {
     if (failed > 0) {
         process.exitCode = 1;
     }
-    // On Windows, the static ZMQ context destructor blocks indefinitely.
-    // Terminate it before exit so the process can clean up.
-    try { require('..')._shutdown(); } catch {}
-    process.exit(failed > 0 ? 1 : 0);
+    // On Windows, zmq_ctx_term in the static ZMQ context destructor blocks.
+    // Use SIGKILL (mapped to TerminateProcess on Windows) to skip cleanup.
+    process.kill(process.pid, 'SIGKILL');
 }
 
 main().catch((err) => {
