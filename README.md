@@ -1,11 +1,11 @@
 # node-zmq-algebraiceffect
 
-Node.js native addon for the [zmq-algebraiceffect](https://github.com/zmq-algebraiceffect/zmq-algebraiceffect) protocol.
+Node.js native addon for the [zmq-algebraiceffect](https://github.com/zmqae/zmq-algebraiceffect) protocol.
 
 ## Install
 
 ```bash
-git clone --recursive https://github.com/zmq-algebraiceffect/node-zmq-algebraiceffect.git
+git clone --recursive https://github.com/zmqae/node-zmq-algebraiceffect.git
 cd node-zmq-algebraiceffect
 npm install
 ```
